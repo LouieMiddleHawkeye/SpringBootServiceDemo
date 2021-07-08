@@ -15,15 +15,13 @@ public class PlayerConfig {
     CommandLineRunner commandLineRunner(PlayerRepository repository) {
         return args -> {
             Player roger = new Player()
-                    .setName("Roger")
+                    .setName("Roger Federer")
                     .setEmail("roger.federer@hawkeye.com")
-                    .setAge(39)
                     .setDob(LocalDate.of(1981, Month.AUGUST, 5));
 
             Player novak = new Player()
                     .setName("Novak Djokovic")
                     .setEmail("novak.djokovic@hawkeye.com")
-                    .setAge(34)
                     .setDob(LocalDate.of(1987, Month.MAY, 22));
 
             repository.saveAll(

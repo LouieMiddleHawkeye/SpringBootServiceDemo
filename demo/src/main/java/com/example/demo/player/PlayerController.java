@@ -1,9 +1,7 @@
 package com.example.demo.player;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,5 +20,24 @@ public class PlayerController {
     @GetMapping
     public List<Player> getPlayers() {
         return playerService.getPlayers();
+    }
+
+    // Post is used when you want to add more resources to your system
+    // Take the request body JSON object and map it into a player
+    @PostMapping
+    public void registerNewPlayer(@RequestBody Player player) {
+        playerService.addNewPlayer(player);
+    }
+
+    @DeleteMapping(path = "{playerId}")
+    public void deletePlayer(@PathVariable("playerId") Long playerId) {
+        playerService.deletePlayer(playerId);
+    }
+
+    @PutMapping(path = "{playerId}")
+    public void updatePlayer(@PathVariable("playerId") Long playerId,
+                             @RequestParam(required = false) String name,
+                             @RequestParam(required = false) String email) {
+        playerService.updatePlayer(playerId, name, email);
     }
 }
