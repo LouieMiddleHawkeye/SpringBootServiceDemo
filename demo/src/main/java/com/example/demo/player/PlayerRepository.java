@@ -18,4 +18,8 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
      */
     @Query("SELECT p FROM Player p WHERE p.name = ?1")
     Optional<Player> findPlayerByName(String name);
+
+    Boolean existsPlayerByName(String name);
+
+    Boolean existsPlayerByEmail(String email);
 }

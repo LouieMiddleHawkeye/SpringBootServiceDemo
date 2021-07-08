@@ -25,6 +25,7 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
+	testImplementation 'com.h2database:h2'
 }
 
 test {

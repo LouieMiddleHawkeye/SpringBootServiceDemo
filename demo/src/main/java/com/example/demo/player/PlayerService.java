@@ -29,7 +29,7 @@ public class PlayerService {
     public void addNewPlayer(Player player) {
         Optional<Player> playerOptional = playerRepository.findPlayerByName(player.getName());
         if (playerOptional.isPresent()) {
-            throw new IllegalStateException("name taken");
+            throw new IllegalStateException("name " + player.getName() + " is taken");
         }
 //        log.debug(player.toString());
 //        System.out.println(player);
