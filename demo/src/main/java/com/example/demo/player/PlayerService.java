@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
@@ -39,7 +38,7 @@ public class PlayerService {
     public void deletePlayer(Long playerId) {
         boolean playerExists = playerRepository.existsById(playerId);
         if (!playerExists) {
-            throw new IllegalStateException("student with id " + playerId + " does not exist");
+            throw new IllegalStateException("player with id " + playerId + " does not exist");
         }
         playerRepository.deleteById(playerId);
     }
@@ -54,7 +53,7 @@ public class PlayerService {
         if  (playerName != null && !(playerName.isBlank()) && !Objects.equals(player.getName(), playerName)) {
             Optional<Player> playerOptional = playerRepository.findPlayerByName(playerName);
             if (playerOptional.isPresent()) {
-                throw new IllegalStateException("name taken");
+                throw new IllegalStateException("name " + playerOptional.get().getName() + " is taken");
             }
             player.setName(playerName);
         }

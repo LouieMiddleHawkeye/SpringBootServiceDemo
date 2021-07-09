@@ -11,6 +11,7 @@ import java.util.List;
 @Configuration
 public class PlayerConfig {
 
+    // TODO Bean not normally used
     @Bean
     CommandLineRunner commandLineRunner(PlayerRepository repository) {
         return args -> {

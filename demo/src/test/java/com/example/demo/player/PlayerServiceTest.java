@@ -1,14 +1,10 @@
 package com.example.demo.player;
 
-import org.assertj.core.api.InstanceOfAssertFactories;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
@@ -17,11 +13,11 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 // This does the commented out code.
 @ExtendWith(MockitoExtension.class)
@@ -74,19 +70,7 @@ class PlayerServiceTest {
         playerService.addNewPlayer(player);
 
         // then
-        ArgumentCaptor<Player> playerArgumentCaptor = ArgumentCaptor.forClass(Player.class);
-
-        /*
-         This is saying we want to capture the student that was passed
-         through when "save" was called by the repository
-        */
-        verify(playerRepository).save(playerArgumentCaptor.capture());
-
-        // This is the player that was passed through in addNewPlayer
-        Player capturedPlayer = playerArgumentCaptor.getValue();
-
-        // We want to check if they are the same
-        assertThat(capturedPlayer).isEqualTo(player);
+        verify(playerRepository).save(player);
     }
 
     @Test
@@ -112,12 +96,85 @@ class PlayerServiceTest {
     }
 
     @Test
-    @Disabled
-    void deletePlayer() {
+    void shouldDeletePlayer() {
+        // when
+        when(playerRepository.existsById(1L)).thenReturn(true);
+        playerService.deletePlayer(1L);
+
+        // then
+        verify(playerRepository).deleteById(1L);
     }
 
     @Test
-    @Disabled
-    void updatePlayer() {
+    void shouldThrowExceptionWhenPlayerDoesNotExist() {
+        // when
+        when(playerRepository.existsById(1L)).thenReturn(false);
+
+        // then
+        assertThatThrownBy(() -> playerService.deletePlayer(1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("player with id " + 1L + " does not exist");
+
+        verify(playerRepository, never()).deleteById(any());
+
+        // when
+        when(playerRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // then
+        Exception exception = assertThrows(IllegalStateException.class, () ->
+                playerService.updatePlayer(1L, "", ""));
+
+        String message = exception.getMessage();
+        assertThat(message).isEqualTo("player with id " + 1L + " does not exist");
+    }
+
+    @Test
+    void shouldUpdatePlayerName() {
+        Player playerSpy = Mockito.spy(new Player().setId(1L));
+
+        when(playerRepository.findById(1L)).thenReturn(Optional.ofNullable(playerSpy));
+
+        playerService.updatePlayer(1L, "Bob", "faker@hawkeye.com");
+
+        verify(playerSpy).setName("Bob");
+    }
+
+    @Test
+    void shouldNotUpdatePlayerNameIfPlayerNameExists() {
+        Player playerSpy = Mockito.spy(new Player().setName("Bob"));
+        when(playerRepository.findById(1L)).thenReturn(Optional.ofNullable(playerSpy));
+
+        playerService.updatePlayer(1L, "Bob", "");
+        verify(playerSpy, never()).setName(any());
+
+        when(playerRepository.findById(1L)).thenReturn(Optional.ofNullable(new Player()));
+        when(playerRepository.findPlayerByName("Bob")).thenReturn(Optional.ofNullable(new Player().setName("Bob")));
+
+        Exception exception = assertThrows(IllegalStateException.class, () ->
+                playerService.updatePlayer(1L, "Bob", ""));
+        String message = exception.getMessage();
+        assertThat(message).isEqualTo("name " + "Bob" + " is taken");
+    }
+
+    @Test
+    void shouldUpdatePlayerEmail() {
+        Player playerSpy = Mockito.spy(new Player());
+
+        when(playerRepository.findById(1L)).thenReturn(Optional.ofNullable(playerSpy));
+
+        playerService.updatePlayer(1L, "", "bob@hawkeye.com");
+
+        verify(playerSpy).setEmail("bob@hawkeye.com");
+    }
+
+    @Test
+    void shouldNotUpdatePlayerEmail() {
+        Player playerSpy = Mockito.spy(new Player().setEmail("bob@hawkeye.com"));
+
+        when(playerRepository.findById(1L)).thenReturn(Optional.ofNullable(playerSpy));
+
+        playerService.updatePlayer(1L, "", "bob@hawkeye.com");
+
+        verify(playerSpy, never()).setEmail(any());
     }
 }
