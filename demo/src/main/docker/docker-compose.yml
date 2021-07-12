@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  app:
+    image: 'demo:latest'
+    build:
+      context: .
+    container_name: demo
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=hawkeye
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop
+
+  db:
+    image: 'postgres'
+    container_name: db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=hawkeye
+
+  pgadmin:
+    links:
+      - db:db
+    image: dpage/pgadmin4:4.18
+    restart: unless-stopped
+    ports:
+      - 5050:5050
+      - 9080:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: hawkeye@hawkeye.com
+      PGADMIN_DEFAULT_PASSWORD: hawkeye
+      PGADMIN_LISTEN_PORT: 80
